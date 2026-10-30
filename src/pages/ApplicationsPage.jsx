@@ -1,9 +1,11 @@
 //job applications  dashbord search, sorting, drag and drop status update, job add edit functionality
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useApplications } from '../hooks/useApplications.js';
+import { useDragAutoScroll } from '../hooks/useDragAutoScroll.js';
 import ApplicationCard from '../components/ApplicationCard.jsx';
 import ApplicationForm from '../components/ApplicationForm.jsx';
 import BoardColumn from '../components/BoardColumn.jsx';
+import DragDock from '../components/DragDock.jsx';
 import Modal from '../components/Modal.jsx';
 import { Alert } from '../components/Alert.jsx';
 import { CardSkeleton } from '../components/Loading.jsx';
@@ -21,12 +23,14 @@ function compareByDate(order) {
 export default function ApplicationsPage() {
   const { applications, status, error, reload, create, update, changeStatus, remove, fetchTip } = useApplications();
 
+
   const [dialog, setDialog] = useState(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('new');
   const [moveError, setMoveError] = useState('');
-
-
+  const [hoverStatus, setHoverStatus] = useState(null);
+  const boardRef = useRef(null);
+  const dragging = useDragAutoScroll(boardRef);
   const columns = useMemo(() => {
     const query = search.trim().toLowerCase();
     const sorter = compareByDate(sort);
@@ -34,7 +38,9 @@ export default function ApplicationsPage() {
     return STATUSES.map((s) => ({ status: s, items: matches.filter((a) => a.status === s).sort(sorter) }));
   }, [applications, search, sort]);
 
+
   async function handleDropCard(id, newStatus) {
+    setHoverStatus(null);
     const application = applications.find((a) => String(a.id) === id);
     if (!application || application.status === newStatus) return;
     setMoveError('');
@@ -55,7 +61,7 @@ export default function ApplicationsPage() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Job hunt</h1>
-{/* Search by company */}
+
         <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
           <label htmlFor="company-search" className="sr-only">
             Search by company
@@ -100,7 +106,7 @@ export default function ApplicationsPage() {
             Loading applications
           </p>
           {[0, 1, 2].map((n) => (
-            <CardSkeleton key={n} />
+            <CardSkeleton key={n} /> // static list, so index-like keys are safe here
           ))}
         </div>
       )}
@@ -126,10 +132,11 @@ export default function ApplicationsPage() {
 
       {status === 'ready' && applications.length > 0 && (
         <div
+          ref={boardRef}
           role="region"
           aria-label="Application board"
           tabIndex={0}
-          className="flex snap-x snap-mandatory items-start gap-3 overflow-x-auto pb-3 md:grid md:snap-none md:grid-cols-2 md:overflow-visible lg:flex lg:overflow-x-auto"
+          className={`flex ${dragging ? '' : 'snap-x snap-mandatory'} gap-3 overflow-x-auto pb-3 md:grid md:snap-none md:grid-cols-2 md:overflow-visible lg:flex lg:overflow-x-auto`}
         >
           {columns.map((column) => (
             <BoardColumn
@@ -138,7 +145,9 @@ export default function ApplicationsPage() {
               count={column.items.length}
               onDropCard={handleDropCard}
               onAdd={(s) => setDialog({ status: s })}
+              onHover={setHoverStatus}
             >
+
               {column.items.map((application) => (
                 <ApplicationCard
                   key={application.id}
@@ -154,7 +163,13 @@ export default function ApplicationsPage() {
         </div>
       )}
 
-    {/* edit option applied etc */}
+      <DragDock
+        visible={dragging}
+        target={dragging ? hoverStatus : null}
+        onHover={setHoverStatus}
+        onDropCard={handleDropCard}
+      />
+
       {dialog && (
         <Modal title={dialog.application ? 'Edit job' : 'Add job'} onClose={() => setDialog(null)}>
           <ApplicationForm

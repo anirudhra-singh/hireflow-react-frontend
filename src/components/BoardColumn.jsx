@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { STATUS_LABELS, STATUS_STYLES } from '../utils/constants.js';
 
-export default function BoardColumn({ status, count, onDropCard, onAdd, children }) {
+
+export default function BoardColumn({ status, count, onDropCard, onAdd, onHover, children }) {
   const [isOver, setIsOver] = useState(false);
 
   return (
@@ -10,17 +11,21 @@ export default function BoardColumn({ status, count, onDropCard, onAdd, children
       onDragOver={(event) => {
         event.preventDefault();
         setIsOver(true);
+        onHover(status);
       }}
       onDragLeave={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setIsOver(false);
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setIsOver(false);
+          onHover(null);
+        }
       }}
       onDrop={(event) => {
         event.preventDefault();
         setIsOver(false);
         onDropCard(event.dataTransfer.getData('text/plain'), status);
       }}
-      // phones: swipeable columns (86% wide, snap). Tablets: 2-column grid.
-      // laptop: fixed-width columns inside a horizontally scrolling board.
+      // Phones: swipeable columns (86% wide, snap). Tablets: 2-column grid
+      // Desktop: fixed-width columns inside a horizontally scrolling board
       className={`flex w-[86%] shrink-0 snap-start flex-col gap-2.5 rounded-2xl bg-slate-100 p-2.5 md:w-auto md:shrink md:snap-align-none lg:w-68 lg:shrink-0 ${
         isOver ? 'outline-2 outline-dashed outline-violet-700' : ''
       }`}
