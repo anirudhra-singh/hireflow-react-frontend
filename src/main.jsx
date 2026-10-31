@@ -18,7 +18,7 @@ function ConfigError({ message }) {
 
 const root = createRoot(document.getElementById('root'));
 
-
+// Refuse to run (no router, no API calls) when the API URL is missing or insecure.
 if (config.error) {
   root.render(<ConfigError message={config.error} />);
 } else {
