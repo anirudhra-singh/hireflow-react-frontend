@@ -1,12 +1,62 @@
 @import "tailwindcss";
-@import '@fontsource-variable/plus-jakarta-sans/wght.css';  
 
 @theme {
---font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* FONT: the app-wide font lives here (Plus Jakarta Sans, self-hosted via npm).
+     To switch fonts later, change this line and the import in main.jsx. */
+  --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* animation */
+  --animate-dd-in: dd-in 160ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;    /* dropdown opens */
+  --animate-item-in: item-in 200ms ease-out backwards;                       /* items inside it, confirm panels */
+  --animate-dialog-in: dialog-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);      /* edit pop-up */
+  --animate-fade-in: fade-in 220ms ease-out;                                 /* dark backdrop of the pop-up */
+  --animate-leave: leave 220ms ease-in forwards;                             /* a card or row being deleted */
+  --animate-ai-in: ai-in 350ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;    /* new AI suggestion box */
+  --animate-shimmer: shimmer 1.2s linear infinite;                           /* "ai is thinking" placeholder */
+  --animate-pop: pop 320ms cubic-bezier(0.2, 1.6, 0.4, 1);                   /* the check mark after Copy */
+
+  @keyframes dd-in {
+    from { opacity: 0; transform: translateY(-6px) scale(0.95); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes item-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes dialog-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes leave {
+    to { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  }
+  @keyframes ai-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes shimmer {
+    to { background-position: -200% 0; }
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.3); }
+    to { opacity: 1; transform: scale(1); }
+  }
 }
 
-/* One visible focus style for every keyboard-focusable element.
-   The color is a literal so it never depends on a theme variable being emitted. */
+@layer components {
+  .ai-box {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(#fff, #fff) padding-box,
+      linear-gradient(135deg, #a78bfa, #6366f1 60%, #38bdf8) border-box;
+  }
+}
+
+
 @layer base {
   :focus-visible {
     outline: 2px solid #6d28d9;
@@ -14,7 +64,7 @@
   }
 }
 
-/* Respect "reduce motion" in the OS. */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

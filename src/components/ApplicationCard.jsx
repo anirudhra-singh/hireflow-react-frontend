@@ -1,13 +1,14 @@
 // job application card company name, job title, status progress bar, applied date, link, notes, AI tips related code
 import { useId, useState } from 'react';
-import StatusPicker from './StatusPicker.jsx';
+import AiSuggestion from './AiSuggestion.jsx';
+import StatusDropdown from './StatusDropdown.jsx';
 import { Alert } from './Alert.jsx';
 import { STAGES, STATUS_LABELS, STATUS_STYLES } from '../utils/constants.js';
 import { parseSafeUrl } from '../utils/safeUrl.js';
 import { formatDate } from '../utils/format.js';
 import { dangerButton, secondaryButton } from '../utils/ui.js';
 
-// ai error message
+//  ai error message
 function tipErrorMessage(err) {
   if (err.status === 429) return 'You have reached the AI tip limit for now. Please try again later.';
   if (err.status === 502) return 'The AI service had a problem. Please try again in a moment.';
@@ -19,16 +20,19 @@ export default function ApplicationCard({ application, onEdit, onStatusChange, o
   const uid = useId();
   const [busy, setBusy] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  
+  const [leaving, setLeaving] = useState(false);
   const [tipLoading, setTipLoading] = useState(false);
+  const [tipAt, setTipAt] = useState(null); // when THIS session generated the tip
   const [actionError, setActionError] = useState('');
   const [tipError, setTipError] = useState('');
 
   const styles = STATUS_STYLES[application.status] ?? STATUS_STYLES.applied;
   // job application process ke kis stage par hai
   const stageIndex = STAGES.indexOf(application.status);
+
   const link = parseSafeUrl(application.job_url);
 
-  // call api to change the status of appliction
   async function handleStatusChange(next) {
     setBusy(true);
     setActionError('');
@@ -39,24 +43,31 @@ export default function ApplicationCard({ application, onEdit, onStatusChange, o
       setBusy(false);
     }
   }
-// call api handle appliction delete
-  async function handleDelete() {
+
+  function startDelete() {
     setBusy(true);
     setActionError('');
+    setLeaving(true); 
+  }
+
+  async function handleAnimationEnd(event) {
+    if (event.target !== event.currentTarget || !leaving) return;
     try {
       await onDelete(application.id); // on success this card unmounts
     } catch (err) {
-      setActionError(err.message);
+      setLeaving(false); // the server said no: bring the card back with the error
       setBusy(false);
       setConfirmingDelete(false);
+      setActionError(err.message);
     }
   }
-// call api for ai tips
+
   async function handleGetTip() {
     setTipLoading(true);
     setTipError('');
     try {
       await onGetTip(application.id);
+      setTipAt(Date.now());
     } catch (err) {
       setTipError(tipErrorMessage(err));
     } finally {
@@ -67,16 +78,19 @@ export default function ApplicationCard({ application, onEdit, onStatusChange, o
   return (
     <article
       aria-labelledby={`${uid}-heading`}
-      // draggable drop it on another column to change its status. The status
+      onAnimationEnd={handleAnimationEnd}
+      // draggable drop it on another column to change its status
       draggable
       onDragStart={(event) => event.dataTransfer.setData('text/plain', String(application.id))}
-      className={`flex min-w-0 cursor-grab flex-col gap-2.5 rounded-xl border border-l-[3px] border-gray-200 bg-white p-3 shadow-sm ${styles.border}`}
+      className={`flex min-w-0 cursor-grab flex-col gap-2.5 rounded-xl border border-l-[3px] border-gray-200 bg-white p-3 shadow-sm ${styles.border} ${
+        leaving ? 'pointer-events-none animate-leave' : ''
+      }`}
     >
       <div className="min-w-0">
-        <h3 id={`${uid}-heading`} className="break-words text-[15px] font-semibold text-gray-900">
+        <h3 id={`${uid}-heading`} className="	wrap-break-word text-[15px] font-semibold text-gray-900">
           {application.company_name}
         </h3>
-        <p className="break-words text-xs text-gray-600">{application.job_title}</p>
+        <p className="wrap-break-word text-xs text-gray-600">{application.job_title}</p>
       </div>
 
       {stageIndex >= 0 ? (
@@ -114,20 +128,19 @@ export default function ApplicationCard({ application, onEdit, onStatusChange, o
       </p>
 
       {application.notes && (
-        <p className="line-clamp-2 whitespace-pre-line break-words text-xs text-gray-700">{application.notes}</p>
+        <p className="line-clamp-2 whitespace-pre-line	wrap-break-word text-xs text-gray-700">{application.notes}</p>
       )}
 
-      {application.ai_tip && (
-        <p className="whitespace-pre-line break-words rounded-lg bg-violet-50 p-2.5 text-[13px] text-gray-800">
-          {application.ai_tip}
-        </p>
+      {(tipLoading || application.ai_tip) && (
+        <AiSuggestion tip={application.ai_tip ?? ''} loading={tipLoading} generatedAt={tipAt} />
       )}
 
       {tipError && <Alert>{tipError}</Alert>}
       {actionError && <Alert>{actionError}</Alert>}
 
       <div className="flex flex-col gap-1.5">
-        <StatusPicker
+        <StatusDropdown
+          variant="field"
           status={application.status}
           companyName={application.company_name}
           disabled={busy}
@@ -135,13 +148,12 @@ export default function ApplicationCard({ application, onEdit, onStatusChange, o
         />
 
         {confirmingDelete ? (
-          <div role="group" aria-label="Confirm delete" className="flex flex-col gap-1.5">
+          <div role="group" aria-label="Confirm delete" className="flex animate-item-in flex-col gap-1.5">
             <p className="text-xs text-gray-700">Delete this application?</p>
             <div className="flex gap-1.5">
-              <button type="button" className={`${dangerButton} flex-1`} onClick={handleDelete} disabled={busy}>
+              <button type="button" className={`${dangerButton} flex-1`} onClick={startDelete} disabled={busy}>
                 Yes, delete
               </button>
-              {/* autoFocus - delete button just vanished so focus goes to the SAFE choice. */}
               <button
                 type="button"
                 autoFocus

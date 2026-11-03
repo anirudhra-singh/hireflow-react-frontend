@@ -1,4 +1,3 @@
-//job applications  dashbord search, sorting, drag and drop status update, job add edit functionality
 import { useMemo, useRef, useState } from 'react';
 import { useApplications } from '../hooks/useApplications.js';
 import { useDragAutoScroll } from '../hooks/useDragAutoScroll.js';
@@ -6,11 +5,18 @@ import ApplicationCard from '../components/ApplicationCard.jsx';
 import ApplicationForm from '../components/ApplicationForm.jsx';
 import BoardColumn from '../components/BoardColumn.jsx';
 import DragDock from '../components/DragDock.jsx';
+import JobsTable from '../components/JobsTable.jsx';
 import Modal from '../components/Modal.jsx';
 import { Alert } from '../components/Alert.jsx';
 import { CardSkeleton } from '../components/Loading.jsx';
 import { SORTS, STATUSES } from '../utils/constants.js';
 import { inputClass, primaryButton, secondaryButton } from '../utils/ui.js';
+
+//  two ways to look at the same jobs
+const VIEWS = [
+  { value: 'board', label: 'Board View' },
+  { value: 'table', label: 'Table View' },
+];
 
 
 function compareByDate(order) {
@@ -25,18 +31,27 @@ export default function ApplicationsPage() {
 
 
   const [dialog, setDialog] = useState(null);
+  const [view, setView] = useState('board');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('new');
   const [moveError, setMoveError] = useState('');
   const [hoverStatus, setHoverStatus] = useState(null);
   const boardRef = useRef(null);
   const dragging = useDragAutoScroll(boardRef);
-  const columns = useMemo(() => {
+
+  // filtered and sorted list
+  const visible = useMemo(() => {
     const query = search.trim().toLowerCase();
-    const sorter = compareByDate(sort);
-    const matches = applications.filter((a) => !query || (a.company_name ?? '').toLowerCase().includes(query));
-    return STATUSES.map((s) => ({ status: s, items: matches.filter((a) => a.status === s).sort(sorter) }));
+    return applications
+      .filter((a) => !query || (a.company_name ?? '').toLowerCase().includes(query))
+      .sort(compareByDate(sort));
   }, [applications, search, sort]);
+
+
+  const columns = useMemo(
+    () => STATUSES.map((s) => ({ status: s, items: visible.filter((a) => a.status === s) })),
+    [visible],
+  );
 
 
   async function handleDropCard(id, newStatus) {
@@ -57,11 +72,14 @@ export default function ApplicationsPage() {
     setDialog(null);
   }
 
+  const showContent = status === 'ready' && applications.length > 0;
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Job hunt</h1>
 
+        
         <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
           <label htmlFor="company-search" className="sr-only">
             Search by company
@@ -83,7 +101,7 @@ export default function ApplicationsPage() {
                 type="button"
                 aria-pressed={sort === option.value}
                 onClick={() => setSort(option.value)}
-                className={`min-h-10 rounded-lg px-3.5 text-sm font-medium ${
+                className={`min-h-10 rounded-lg px-3.5 text-sm font-medium transition duration-150 ${
                   sort === option.value ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -98,6 +116,25 @@ export default function ApplicationsPage() {
         </div>
       </div>
 
+
+      <div role="group" aria-label="View" className="-mt-1 flex gap-6 border-b border-gray-200">
+        {VIEWS.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={view === option.value}
+            onClick={() => setView(option.value)}
+            className={`-mb-px min-h-11 border-b-2 px-1 text-[15px] font-medium transition-colors duration-150 ${
+              view === option.value
+                ? 'border-violet-700 text-violet-700'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
       {moveError && <Alert>{moveError}</Alert>}
 
       {status === 'loading' && (
@@ -106,7 +143,7 @@ export default function ApplicationsPage() {
             Loading applications
           </p>
           {[0, 1, 2].map((n) => (
-            <CardSkeleton key={n} /> // static list, so index-like keys are safe here
+            <CardSkeleton key={n} /> 
           ))}
         </div>
       )}
@@ -130,13 +167,13 @@ export default function ApplicationsPage() {
         </div>
       )}
 
-      {status === 'ready' && applications.length > 0 && (
+      {showContent && view === 'board' && (
         <div
           ref={boardRef}
           role="region"
           aria-label="Application board"
           tabIndex={0}
-          className={`flex ${dragging ? '' : 'snap-x snap-mandatory'} gap-3 overflow-x-auto pb-3 md:grid md:snap-none md:grid-cols-2 md:overflow-visible lg:flex lg:overflow-x-auto`}
+          className={`flex ${dragging ? '' : 'snap-x snap-mandatory'} gap-3 overflow-x-auto pb-3 has-data-dropdown:pb-52 md:grid md:snap-none md:grid-cols-2 md:overflow-visible lg:flex lg:overflow-x-auto`}
         >
           {columns.map((column) => (
             <BoardColumn
@@ -147,7 +184,6 @@ export default function ApplicationsPage() {
               onAdd={(s) => setDialog({ status: s })}
               onHover={setHoverStatus}
             >
-
               {column.items.map((application) => (
                 <ApplicationCard
                   key={application.id}
@@ -163,12 +199,26 @@ export default function ApplicationsPage() {
         </div>
       )}
 
-      <DragDock
-        visible={dragging}
-        target={dragging ? hoverStatus : null}
-        onHover={setHoverStatus}
-        onDropCard={handleDropCard}
-      />
+      {showContent && view === 'table' &&
+        (visible.length === 0 ? (
+          <p className="text-sm text-gray-600">No applications match your search.</p>
+        ) : (
+          <JobsTable
+            applications={visible}
+            onEdit={(a) => setDialog({ application: a })}
+            onStatusChange={changeStatus}
+            onDelete={remove}
+          />
+        ))}
+
+      {view === 'board' && (
+        <DragDock
+          visible={dragging}
+          target={dragging ? hoverStatus : null}
+          onHover={setHoverStatus}
+          onDropCard={handleDropCard}
+        />
+      )}
 
       {dialog && (
         <Modal title={dialog.application ? 'Edit job' : 'Add job'} onClose={() => setDialog(null)}>
