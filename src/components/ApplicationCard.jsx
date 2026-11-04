@@ -150,7 +150,7 @@ export default function ApplicationCard({ application, onEdit, onStatusChange, o
         {confirmingDelete ? (
           <div role="group" aria-label="Confirm delete" className="flex animate-item-in flex-col gap-1.5">
             <p className="text-xs text-gray-700">Delete this application?</p>
-            <div className="flex gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
               <button type="button" className={`${dangerButton} flex-1`} onClick={startDelete} disabled={busy}>
                 Yes, delete
               </button>
@@ -166,10 +166,10 @@ export default function ApplicationCard({ application, onEdit, onStatusChange, o
             </div>
           </div>
         ) : (
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5">
             <button
               type="button"
-              className={`${secondaryButton} flex-1 px-2`}
+              className={`${secondaryButton} flex-1 basis-17 px-2`}
               aria-label={`Edit ${application.company_name}`}
               onClick={() => onEdit(application)}
               disabled={busy}

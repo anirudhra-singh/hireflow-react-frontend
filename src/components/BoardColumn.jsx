@@ -26,7 +26,7 @@ export default function BoardColumn({ status, count, onDropCard, onAdd, onHover,
       }}
       // Phones: swipeable columns (86% wide, snap). Tablets: 2-column grid
       // Desktop: fixed-width columns inside a horizontally scrolling board
-      className={`flex w-[86%] shrink-0 snap-start flex-col gap-2.5 rounded-2xl bg-slate-100 p-2.5 md:w-auto md:shrink md:snap-align-none lg:w-68 lg:shrink-0 ${
+      className={`flex w-[86%] shrink-0 snap-start flex-col gap-2.5 rounded-2xl bg-slate-100 p-2.5 md:w-auto md:shrink md:snap-align-none lg:min-w-0 ${
         isOver ? 'outline-2 outline-dashed outline-violet-700' : ''
       }`}
     >

@@ -9,7 +9,7 @@ export default function DragDock({ visible, target, onHover, onDropCard }) {
       onDragLeave={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) onHover(null);
       }}
-      className={`fixed bottom-18 left-1/2 z-30 flex max-w-[calc(100vw-1rem)] -translate-x-1/2 flex-col items-center gap-2 rounded-3xl border border-gray-200/70 bg-white/75 p-3 shadow-2xl shadow-violet-900/25 backdrop-blur-xl transition duration-200 motion-reduce:transition-none lg:bottom-4 ${
+      className={`fixed bottom-4 left-1/2 z-30 flex max-w-[calc(100vw-1rem)] -translate-x-1/2 flex-col items-center gap-2 rounded-3xl border border-gray-200/70 bg-white/75 p-3 shadow-2xl shadow-violet-900/25 backdrop-blur-xl transition duration-200 motion-reduce:transition-none ${
         visible ? 'visible translate-y-0 opacity-100' : 'pointer-events-none invisible translate-y-6 opacity-0'
       }`}
     >

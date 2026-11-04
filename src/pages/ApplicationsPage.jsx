@@ -173,7 +173,7 @@ export default function ApplicationsPage() {
           role="region"
           aria-label="Application board"
           tabIndex={0}
-          className={`flex ${dragging ? '' : 'snap-x snap-mandatory'} gap-3 overflow-x-auto pb-3 has-data-dropdown:pb-52 md:grid md:snap-none md:grid-cols-2 md:overflow-visible lg:flex lg:overflow-x-auto`}
+          className={`flex ${dragging ? '' : 'snap-x snap-mandatory'} gap-3 overflow-x-auto pb-3 has-data-dropdown:pb-52 md:grid md:snap-none md:grid-cols-2 md:overflow-visible lg:grid-flow-col lg:grid-cols-none lg:auto-cols-[minmax(11rem,1fr)] lg:overflow-x-auto`}
         >
           {columns.map((column) => (
             <BoardColumn

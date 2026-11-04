@@ -1,4 +1,7 @@
-// small inline svg icons
+// Small inline SVG icons. They are decorative (aria-hidden), the visible text
+// next to them carries the meaning. SVG attributes are fine under a strict CSP;
+// only the style="" attribute is blocked.
+// To add an icon: add a key here, then use <Icon name="yourKey" />.
 const PATHS = {
   board: (
     <>
@@ -21,6 +24,10 @@ const PATHS = {
     </>
   ),
   chevron: <path d="M6 9l6 6 6-6" />,
+  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
+  close: <path d="M6 6l12 12M18 6L6 18" />,
+  logout: <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />,
+  // The three dots are filled circles, not strokes, so they carry their own fill.
   dots: (
     <>
       <circle cx="5" cy="12" r="1.8" fill="currentColor" stroke="none" />
