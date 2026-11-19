@@ -33,9 +33,17 @@ export const STATUS_STYLES = {
   },
 };
 
+
 export const SORTS = [
-  { value: 'new', label: 'Latest' },
-  { value: 'old', label: 'Oldest' },
+  { value: 'new', label: 'Latest', menuLabel: 'Latest first' },
+  { value: 'old', label: 'Oldest', menuLabel: 'Oldest first' },
+];
+
+
+export const DATE_FILTERS = [
+  { value: 'any', label: 'Any time', days: null },
+  { value: '7', label: 'Last 7 days', days: 7 },
+  { value: '30', label: 'Last 30 days', days: 30 },
 ];
 
 

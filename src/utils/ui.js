@@ -11,7 +11,8 @@ const buttonBase =
 export const primaryButton = `${buttonBase} rounded-full bg-violet-700 px-5 text-white hover:bg-violet-800`;
 export const secondaryButton = `${buttonBase} rounded-xl border border-gray-200 bg-white px-4 text-gray-900 hover:bg-gray-50`;
 export const dangerButton = `${buttonBase} rounded-xl border border-rose-200 bg-white px-4 text-rose-700 hover:bg-rose-50`;
-
+export const toolButton =
+  'inline-flex h-9 items-center gap-2 rounded-[10px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-900 transition duration-150 hover:bg-gray-50 aria-expanded:border-violet-700 pointer-coarse:h-11';
 
 export function fieldProps(id, error) {
   return {

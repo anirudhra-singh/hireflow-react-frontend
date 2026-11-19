@@ -3,7 +3,6 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { SidebarProvider } from '../context/SidebarProvider.jsx';
 import { useAuth } from '../hooks/useAuth.js';
 import { useSidebar } from '../hooks/useSidebar.js';
-import DemoBanner from './DemoBanner.jsx';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import ServerStatus from './ServerStatus.jsx';
 import { SidebarBody, SidebarBrand, SidebarLabel, SidebarLink } from './Sidebar.jsx';
@@ -69,12 +68,12 @@ function Layout() {
           </div>
         </SidebarBody>
 
-        {/* min-w-0 is the other half of the fix: without it this column refuses to
-            get narrower than the board inside it. */}
+        {/* min-w-0 is the other half of the width fix: without it this column refuses
+            to get narrower than the board inside it.
+            NOTE: there is no "Demo app" banner here any more. It still shows on the
+            login page (AuthPage.jsx). To bring it back here, render <DemoBanner />
+            at the top of this div. */}
         <div className="min-w-0">
-          {/* The banner lives HERE, not above the grid, so the sidebar can start at the very top
-              of the screen and its bottom part (Log out) is never pushed off-screen. */}
-          <DemoBanner />
           <main className="px-4 pt-5 pb-8 lg:px-8 lg:pt-6 lg:pb-10">
             <div className="mb-4">
               <ServerStatus />

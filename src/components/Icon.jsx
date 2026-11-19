@@ -55,6 +55,13 @@ const PATHS = {
     </>
   ),
   check: <path d="M5 12l5 5 9-10" />,
+    search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.3-4.3" />
+    </>
+  ),
+  filter: <path d="M3 5h18M6 12h12M10 19h4" />,
 };
 
 export default function Icon({ name, className = 'size-4.5' }) {
