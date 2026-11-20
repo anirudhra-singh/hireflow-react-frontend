@@ -45,6 +45,64 @@
     from { opacity: 0; transform: scale(0.3); }
     to { opacity: 1; transform: scale(1); }
   }
+
+    /* LANDING (mockups): the animations inside the fake app windows on the landing
+     page. Each one loops forever. The number is the length of one loop; change it
+     to speed an animation up or down. "backwards" means an element waits in its
+     starting look during its delay, instead of showing its end look first. */
+  --animate-card-drag: card-drag 7s ease-in-out infinite;     /* the card that moves between columns */
+  --animate-card-ghost: card-ghost 7s infinite;               /* the empty spot it leaves behind */
+  --animate-toast-pop: toast-pop 7s infinite;                 /* the "Moved to Interview" chip */
+  --animate-dock-pill: dock-pill 6s infinite backwards;       /* a status pill growing in the dock */
+  --animate-dock-fill: dock-fill 6s infinite backwards;       /* ...and its color filling in */
+  --animate-row-hl: row-hl 6s infinite;                       /* the highlighted table row */
+  --animate-menu-pop: menu-pop 6s infinite;                   /* the Edit / Delete menu */
+  --animate-ai-line: ai-line 8s infinite backwards;           /* AI suggestion lines appearing */
+
+  @keyframes card-drag {
+    0%, 13% { opacity: 0; transform: none; }
+    15% { opacity: 1; transform: none; }
+    24% { transform: translate(0, -6px) rotate(-3deg) scale(1.06); }
+    56% { transform: translate(calc(100% + 22px), -6px) rotate(-3deg) scale(1.06); }
+    66%, 95% { opacity: 1; transform: translate(calc(100% + 22px), 0); }
+    99%, 100% { opacity: 0; transform: translate(calc(100% + 22px), 0); }
+  }
+  @keyframes card-ghost {
+    0%, 14% { opacity: 1; }
+    15%, 98% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes toast-pop {
+    0%, 60% { opacity: 0; transform: translateY(8px); }
+    66%, 88% { opacity: 1; transform: none; }
+    95%, 100% { opacity: 0; }
+  }
+  @keyframes dock-pill {
+    0%, 18% { transform: none; }
+    24%, 40% { transform: scale(1.1); }
+    48%, 100% { transform: none; }
+  }
+  @keyframes dock-fill {
+    0%, 18% { opacity: 0; }
+    24%, 40% { opacity: 1; }
+    48%, 100% { opacity: 0; }
+  }
+  @keyframes row-hl {
+    0%, 20% { background-color: transparent; }
+    30%, 72% { background-color: rgb(245 243 255); }
+    85%, 100% { background-color: transparent; }
+  }
+  @keyframes menu-pop {
+    0%, 26% { opacity: 0; transform: scale(0.92) translateY(-4px); }
+    32%, 72% { opacity: 1; transform: none; }
+    80%, 100% { opacity: 0; transform: scale(0.92); }
+  }
+  @keyframes ai-line {
+    0%, 6% { opacity: 0; transform: translateY(5px); }
+    14%, 90% { opacity: 1; transform: none; }
+    98%, 100% { opacity: 0; }
+  }
+
 }
 
 @layer components {
@@ -73,5 +131,11 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
   }
 }

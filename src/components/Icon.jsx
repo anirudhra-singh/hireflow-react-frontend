@@ -61,6 +61,14 @@ const PATHS = {
       <path d="M21 21l-4.3-4.3" />
     </>
   ),
+    phone: (
+    <>
+      <rect x="7" y="2" width="10" height="20" rx="2" />
+      <path d="M11 18h2" />
+    </>
+  ),
+  arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
+
   filter: <path d="M3 5h18M6 12h12M10 19h4" />,
 };
 
